@@ -1,0 +1,47 @@
+import requests #importa la librería "requests", que permite realizar solicitudes HTTP a través de Python.
+
+def obtener_distancia(ciudad_origen, ciudad_destino):  #define la función "obtener_distancia", que recibe como parámetros dos cadenas de texto que representan las ciudades de origen y destino.
+    url = f"https://www.mapquestapi.com/directions/v2/route?key=X4jANTO5YSiG29qUXVmbhKb6ejNl8F0m&locale=es_ES&unit=k&from={ciudad_origen}&to={ciudad_destino}"
+    #construye una cadena de texto con la URL de la API de MapQuest para obtener la ruta entre las dos ciudades, incluyendo la clave de acceso, el idioma y la unidad de medida. 
+    response = requests.get(url) #realiza una solicitud GET a la URL construida en el paso anterior.
+    data = response.json()  #convierte la respuesta en formato JSON en un objeto de Python, almacenándolo en la data.
+
+    if response.status_code == 200 and data['info']['statuscode'] == 0: #erifica que la respuesta HTTP sea satisfactoria
+        distancia = data['route']['distance']     #extrae la distancia de la ruta en kilómetros desde la respuesta de la API 
+        return round(distancia, 1)                #redondeada a una cifra decimal
+    else:
+        return None
+    
+def calcular_duracion(distancia):          #recibe como parámetro la distancia en kilómetros.
+    velocidad_promedio = 80  # km/h 
+    tiempo_en_horas = distancia / velocidad_promedio  #calcula el tiempo de viaje
+    tiempo_en_minutos = tiempo_en_horas * 60          #calcula el tiempo de viaje en minutos 
+    tiempo_en_segundos = tiempo_en_minutos * 60       #calcula el tiempo de viaje en segundos 
+
+    return round(tiempo_en_horas, 1), round(tiempo_en_minutos, 1), round(tiempo_en_segundos, 1) 
+#devuelve el tiempo de viaje en horas, minutos y segundos redondeados a una cifra decimal.
+
+def imprimir_narrativa(ciudad_origen, ciudad_destino, duracion, distancia):   # recibe como parámetros las ciudades de origen y destino y la duración del viaje en horas, minutos y segundos.
+    horas, minutos, segundos = duracion  # desempaqueta la duración del viaje en horas, minutos y segundos en variables separadas
+
+    print(f"Narrativa del viaje:\n"    
+          f"Partiendo desde {ciudad_origen} hacia {ciudad_destino}...\n"
+          f"El viaje tomará aproximadamente {horas} horas, {minutos} minutos y {segundos} segundos.\n"
+          f"La distancia recorrida será de {distancia} km.")                #imprime la narrativa del viaje
+    
+
+def main():        #define la función principal se encargará de solicitar las ciudades de origen y destino, y realizar los cálculos y mostrar la información del viaje
+    ciudad_origen = input("Ingrese la ciudad de origen (en Chile): ")   #solicita al usuario que ingrese la ciudad de origen en Chile.
+    ciudad_destino = input("Ingrese la ciudad de destino (en otro país de Latinoamérica): ")   #solicita al usuario que ingrese la ciudad de destino en otro país de Latinoamérica.
+
+    distancia = obtener_distancia(ciudad_origen, ciudad_destino)  #llama a la función pasando las ciudades de origen y destino, y guarda el valor de la distancia en la variable "distancia".
+
+    if distancia is not None:                                                                 #verifica si se pudo obtener la distancia entre las ciudades.
+        duracion = calcular_duracion(distancia)                                               #llama a la función pasando la distancia y guarda el valor de la duración del viaje en la variable duracion.
+        imprimir_narrativa(ciudad_origen, ciudad_destino, duracion, distancia)                #llama a la función pasando las ciudades de origen y destino, la duración del viaje y la distancia recorrida.
+        print("S")  #imprime la letra "S" como se solicita en el enunciado.
+    else:
+        print("No se pudo obtener la distancia entre las ciudades.")     
+
+if __name__ == "__main__":       #verifica si el script se está ejecutando directamente. 
+    main()                       #llama a la función principal para iniciar la ejecución del programa.
